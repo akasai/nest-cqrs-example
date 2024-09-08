@@ -16,6 +16,7 @@ describe('UsersService', () => {
           useValue: {
             user: {
               create: jest.fn(), // PrismaService의 user.create 메서드를 모킹
+              findUnique: jest.fn(), // PrismaService의 user.create 메서드를 모킹
             },
           },
         },
@@ -49,6 +50,26 @@ describe('UsersService', () => {
 
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: userData,
+      })
+    })
+  })
+
+  describe('get user', () => {
+    it('should get existing user', async () => {
+      const userData: Prisma.UserWhereUniqueInput = { id: 1 }
+      const expectedUser = {
+        id: 1,
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(expectedUser)
+
+      const result = await service.getUser(userData)
+      expect(result).toEqual(expectedUser)
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: userData,
       })
     })
   })
