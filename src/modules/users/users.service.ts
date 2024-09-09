@@ -14,4 +14,8 @@ export class UsersService {
   async getUser(data: Prisma.UserWhereUniqueInput): Promise<User> {
     return this.prisma.user.findUnique({ where: data })
   }
+
+  async deleteUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    return this.prisma.user.delete({ where })
+  }
 }

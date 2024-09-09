@@ -16,7 +16,8 @@ describe('UsersService', () => {
           useValue: {
             user: {
               create: jest.fn(), // PrismaService의 user.create 메서드를 모킹
-              findUnique: jest.fn(), // PrismaService의 user.create 메서드를 모킹
+              findUnique: jest.fn(), // PrismaService의 user.findUnique 메서드를 모킹
+              delete: jest.fn(), // PrismaService의 user.delete 메서드를 모킹
             },
           },
         },
@@ -69,6 +70,25 @@ describe('UsersService', () => {
       expect(result).toEqual(expectedUser)
 
       expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: userData,
+      })
+    })
+  })
+
+  describe('delete user', () => {
+    it('should delete existing user', async () => {
+      const userData: Prisma.UserWhereUniqueInput = { id: 1 }
+      const expectedUser = {
+        id: 1,
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+      (prismaService.user.delete as jest.Mock).mockResolvedValue(expectedUser)
+
+      const result = await service.deleteUser(userData)
+      expect(result).toEqual(expectedUser)
+
+      expect(prismaService.user.delete).toHaveBeenCalledWith({
         where: userData,
       })
     })

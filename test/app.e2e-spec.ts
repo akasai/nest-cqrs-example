@@ -17,6 +17,7 @@ describe('AppController (e2e)', () => {
         user: {
           create: jest.fn(), // PrismaService의 user.create 메서드를 모킹
           findUnique: jest.fn(), // PrismaService의 user.create 메서드를 모킹
+          delete: jest.fn(), // PrismaService의 user.delete 메서드를 모킹
         },
       })
       .compile()
@@ -55,6 +56,19 @@ describe('AppController (e2e)', () => {
 
     const response = await request(app.getHttpServer())
       .get(`/users/${userId}`)
+      .expect(200)
+
+    expect(response.body).toEqual(createdUser)
+  })
+
+  it('/users/1 (DELETE) should delete a user', async () => {
+    const userId = 1
+    const createdUser = { id: 1, name: 'Test User', email: 'test@example.com' }
+
+    ;(prismaService.user.delete as jest.Mock).mockResolvedValue(createdUser)
+
+    const response = await request(app.getHttpServer())
+      .delete(`/users/${userId}`)
       .expect(200)
 
     expect(response.body).toEqual(createdUser)

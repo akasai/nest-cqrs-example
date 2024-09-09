@@ -14,7 +14,8 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: {
             createUser: jest.fn(), // UsersService의 createUser 메서드를 모킹
-            getUser: jest.fn(), // UsersService의 createUser 메서드를 모킹
+            getUser: jest.fn(), // UsersService의 getUser 메서드를 모킹
+            deleteUser: jest.fn(), // UsersService의 deleteUser 메서드를 모킹
           },
         },
       ],
@@ -52,4 +53,18 @@ describe('UsersController', () => {
     expect(usersService.getUser).toHaveBeenCalledWith({ id: data })
     expect(result).toEqual(userData)
   })
+
+  it('should call usersService.deleteUser when deleteUser is called', async () => {
+    const data = 1
+    const userData = { id: 1, name: 'Test User', email: 'test@example.com' };
+
+
+    (usersService.deleteUser as jest.Mock).mockResolvedValue(userData)
+
+    const result = await controller.deleteUser(data)
+
+    expect(usersService.deleteUser).toHaveBeenCalledWith({ id: data })
+    expect(result).toEqual(userData)
+  })
+
 })
