@@ -1,21 +1,28 @@
 import { INestApplication } from '@nestjs/common'
+import { CommandBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
-import { PrismaService } from '../src/modules/prisma.service'
+import { PrismaService } from '../src/common/prisma/prisma.service'
 import { AppModule } from './../src/app.module'
 
 describe('AppController (e2e)', () => {
   let app: INestApplication
   let prismaService: PrismaService
+  let commandBus: CommandBus
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
+      .overrideProvider(CommandBus)
+      .useValue({
+        register: jest.fn(), // CommandBus load를 위해 모킹
+        execute: jest.fn(), // CommandBus의 execute 메서드를 모킹
+      })
       .overrideProvider(PrismaService)
       .useValue({
         user: {
-          create: jest.fn(), // PrismaService의 user.create 메서드를 모킹
+          // create: jest.fn(), // PrismaService의 user.create 메서드를 모킹
           findUnique: jest.fn(), // PrismaService의 user.create 메서드를 모킹
           delete: jest.fn(), // PrismaService의 user.delete 메서드를 모킹
         },
@@ -25,6 +32,7 @@ describe('AppController (e2e)', () => {
     app = moduleFixture.createNestApplication()
     await app.init()
     prismaService = moduleFixture.get<PrismaService>(PrismaService)
+    commandBus = moduleFixture.get<CommandBus>(CommandBus)
   })
 
   it('/ (GET)', () => {
@@ -35,18 +43,20 @@ describe('AppController (e2e)', () => {
   })
 
   it('/users (POST) should sign up a user', async () => {
-    const userData = { name: 'Test User', email: 'test@example.com' }
-    const createdUser = { id: 1, ...userData }
+    const userData = { name: 'Test User', email: 'test2@example.com', password: '1234' };
+    const createdUser = { id: 1, ...userData };
 
-    ;(prismaService.user.create as jest.Mock).mockResolvedValue(createdUser)
+    // CommandBus의 execute 메서드 모킹
+    (commandBus.execute as jest.Mock).mockResolvedValue(createdUser);
 
     const response = await request(app.getHttpServer())
       .post('/users')
       .send(userData)
-      .expect(201)
+      .expect(201);
 
-    expect(response.body).toEqual(createdUser)
-  })
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(Object)); // CreateUserCommand가 호출됨을 확인
+    expect(response.body).toEqual(createdUser);
+  });
 
   it('/users/1 (GET) should get a user', async () => {
     const userId = 1
