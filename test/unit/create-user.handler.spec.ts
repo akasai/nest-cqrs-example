@@ -1,9 +1,9 @@
 import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as uuid from 'uuid'
-import { PrismaService } from '../../../../common/prisma/prisma.service'
-import { CreateUserCommand } from '../create-user.command'
-import { CreateUserHandler } from './create-user.handler'
+import { PrismaService } from '../../src/common/prisma/prisma.service'
+import { CreateUserCommand } from '../../src/modules/users/commands/create-user.command'
+import { CreateUserHandler } from '../../src/modules/users/commands/handler/create-user.handler'
 
 jest.mock('uuid') // uuid 모듈을 모킹하여 테스트에 고정된 토큰 사용
 

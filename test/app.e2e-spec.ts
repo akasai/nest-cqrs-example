@@ -74,6 +74,20 @@ describe('AppController (e2e)', () => {
     expect(response.body).toEqual({})
   })
 
+  it('/users/login (POST) should sign up a user', async () => {
+    const userData = { email: 'test2@example.com', password: '1234' };
+      // CommandBus의 execute 메서드 모킹
+    (commandBus.execute as jest.Mock).mockResolvedValue(true)
+
+    const response = await request(app.getHttpServer())
+      .post('/users/login')
+      .send(userData)
+      .expect(201)
+
+    expect(commandBus.execute).toHaveBeenCalled() // CreateUserCommand가 호출됨을 확인
+    expect(response.body).toEqual({})
+  })
+
   it('/users/1 (GET) should get a user', async () => {
     const userId = 1
     const createdUser = { id: 1, name: 'Test User', email: 'test@example.com' }

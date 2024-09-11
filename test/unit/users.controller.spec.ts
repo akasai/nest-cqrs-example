@@ -1,10 +1,11 @@
 import { CommandBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as uuid from 'uuid'
-import { CreateUserCommand } from './commands/create-user.command'
-import { VerifyEmailCommand } from './commands/verify-email.command'
-import { UsersController } from './users.controller'
-import { UsersService } from './users.service'
+import { CreateUserCommand } from '../../src/modules/users/commands/create-user.command'
+import { LoginCommand } from '../../src/modules/users/commands/login.command'
+import { VerifyEmailCommand } from '../../src/modules/users/commands/verify-email.command'
+import { UsersController } from '../../src/modules/users/users.controller'
+import { UsersService } from '../../src/modules/users/users.service'
 
 describe('UsersController', () => {
   let controller: UsersController
@@ -63,6 +64,17 @@ describe('UsersController', () => {
     const result = await controller.verifyEmail(token)
     expect(commandBus.execute).toHaveBeenCalledWith(
       new VerifyEmailCommand(token)
+    )
+    expect(result).toEqual(true)
+  })
+
+  it('should call commandBus.execute when login is called', async () => {
+    const userData = { email: 'test@example.com', password: '1234' };
+    (commandBus.execute as jest.Mock).mockResolvedValue(true)
+
+    const result = await controller.login(userData)
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      new LoginCommand(userData.email, userData.password)
     )
     expect(result).toEqual(true)
   })

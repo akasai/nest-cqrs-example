@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
 import { CommandBus } from '@nestjs/cqrs'
 import { CreateUserCommand } from './commands/create-user.command'
+import { LoginCommand } from './commands/login.command'
 import { VerifyEmailCommand } from './commands/verify-email.command'
 import { UsersService } from './users.service'
 
@@ -23,9 +24,17 @@ export class UsersController {
 
   @Post('/verify-email')
   async verifyEmail(
-    @Query('signupVerifyToken') signupVerifyToken: string
+    @Query('signupVerifyToken') signupVerifyToken: string,
   ) {
     return this.commandBus.execute(new VerifyEmailCommand(signupVerifyToken))
+  }
+
+  @Post('/login')
+  async login(
+    @Body() userData: { email: string; password: string },
+  ) {
+    const { email, password } = userData
+    return this.commandBus.execute(new LoginCommand(email, password))
   }
 
   @Get('/:id')

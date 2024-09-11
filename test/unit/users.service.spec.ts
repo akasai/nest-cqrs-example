@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { Prisma } from '@prisma/client'
-import { PrismaService } from '../../common/prisma/prisma.service'
-import { UsersService } from './users.service'
+import { PrismaService } from '../../src/common/prisma/prisma.service'
+import { UsersService } from '../../src/modules/users/users.service'
 import * as uuid from 'uuid'
 
 describe('UsersService', () => {
