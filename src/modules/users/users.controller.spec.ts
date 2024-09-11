@@ -1,6 +1,8 @@
 import { CommandBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
+import * as uuid from 'uuid'
 import { CreateUserCommand } from './commands/create-user.command'
+import { VerifyEmailCommand } from './commands/verify-email.command'
 import { UsersController } from './users.controller'
 import { UsersService } from './users.service'
 
@@ -51,6 +53,18 @@ describe('UsersController', () => {
       new CreateUserCommand(userData.name, userData.email, userData.password),
     )
     expect(result).toEqual(createdUser)
+  })
+
+  it('should call commandBus.execute when verifyEmail is called', async () => {
+    const token = uuid.v4();
+
+    (commandBus.execute as jest.Mock).mockResolvedValue(true)
+
+    const result = await controller.verifyEmail(token)
+    expect(commandBus.execute).toHaveBeenCalledWith(
+      new VerifyEmailCommand(token)
+    )
+    expect(result).toEqual(true)
   })
 
   it('should call usersService.getUser when getUser is called', async () => {

@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common'
 import { CommandBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import * as uuid from 'uuid'
 import { PrismaService } from '../src/common/prisma/prisma.service'
 import { AppModule } from './../src/app.module'
 
@@ -43,20 +44,35 @@ describe('AppController (e2e)', () => {
   })
 
   it('/users (POST) should sign up a user', async () => {
-    const userData = { name: 'Test User', email: 'test2@example.com', password: '1234' };
+    const userData = { name: 'Test User', email: 'test2@example.com', password: '1234' }
     const createdUser = { id: 1, ...userData };
 
     // CommandBus의 execute 메서드 모킹
-    (commandBus.execute as jest.Mock).mockResolvedValue(createdUser);
+    (commandBus.execute as jest.Mock).mockResolvedValue(createdUser)
 
     const response = await request(app.getHttpServer())
       .post('/users')
       .send(userData)
-      .expect(201);
+      .expect(201)
 
-    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(Object)); // CreateUserCommand가 호출됨을 확인
-    expect(response.body).toEqual(createdUser);
-  });
+    expect(commandBus.execute).toHaveBeenCalledWith(expect.any(Object)) // CreateUserCommand가 호출됨을 확인
+    expect(response.body).toEqual(createdUser)
+  })
+
+  it('/users/verify-email (POST) should sign up a user', async () => {
+    const token = uuid.v4();
+
+    // CommandBus의 execute 메서드 모킹
+    (commandBus.execute as jest.Mock).mockResolvedValue(true)
+
+    const response = await request(app.getHttpServer())
+      .post('/users/verify-email')
+      .send(token)
+      .expect(201)
+
+    expect(commandBus.execute).toHaveBeenCalled() // CreateUserCommand가 호출됨을 확인
+    expect(response.body).toEqual({})
+  })
 
   it('/users/1 (GET) should get a user', async () => {
     const userId = 1

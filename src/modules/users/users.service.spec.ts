@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../../common/prisma/prisma.service'
 import { UsersService } from './users.service'
+import * as uuid from 'uuid'
 
 describe('UsersService', () => {
   let service: UsersService
@@ -37,6 +38,8 @@ describe('UsersService', () => {
       const userData: Prisma.UserCreateInput = {
         email: 'test@example.com',
         name: 'Test User',
+        password: '1234',
+        verifyToken: uuid.v4(),
       }
       const expectedUser = {
         id: 1,
