@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common'
-import { CommandBus } from '@nestjs/cqrs'
+import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import * as uuid from 'uuid'
@@ -10,6 +10,7 @@ describe('AppController (e2e)', () => {
   let app: INestApplication
   let prismaService: PrismaService
   let commandBus: CommandBus
+  let queryBus: QueryBus
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -19,6 +20,11 @@ describe('AppController (e2e)', () => {
       .useValue({
         register: jest.fn(), // CommandBus load를 위해 모킹
         execute: jest.fn(), // CommandBus의 execute 메서드를 모킹
+      })
+      .overrideProvider(QueryBus)
+      .useValue({
+        register: jest.fn(), // QueryBus load를 위해 모킹
+        execute: jest.fn(), // QueryBus execute 메서드를 모킹
       })
       .overrideProvider(PrismaService)
       .useValue({
@@ -34,6 +40,7 @@ describe('AppController (e2e)', () => {
     await app.init()
     prismaService = moduleFixture.get<PrismaService>(PrismaService)
     commandBus = moduleFixture.get<CommandBus>(CommandBus)
+    queryBus = moduleFixture.get<QueryBus>(QueryBus)
   })
 
   it('/ (GET)', () => {
@@ -90,9 +97,9 @@ describe('AppController (e2e)', () => {
 
   it('/users/1 (GET) should get a user', async () => {
     const userId = 1
-    const createdUser = { id: 1, name: 'Test User', email: 'test@example.com' }
+    const createdUser = { id: 1, name: 'Test User', email: 'test@example.com' };
 
-    ;(prismaService.user.findUnique as jest.Mock).mockResolvedValue(createdUser)
+    (queryBus.execute as jest.Mock).mockResolvedValue(createdUser)
 
     const response = await request(app.getHttpServer())
       .get(`/users/${userId}`)

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { PrismaService } from '../../../../common/prisma/prisma.service'
-import { LoginCommand } from '../login.command'
+import { PrismaService } from '../../../common/prisma/prisma.service'
+import { LoginCommand } from '../commands/login.command'
 // import { AuthService } from 'src/auth/auth.service'
 
 @Injectable()

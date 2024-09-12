@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common'
-import { CommandBus } from '@nestjs/cqrs'
+import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { CreateUserCommand } from './commands/create-user.command'
 import { LoginCommand } from './commands/login.command'
 import { VerifyEmailCommand } from './commands/verify-email.command'
+import { GetUserInfoQuery } from './queries/get-user-info.query'
 import { UsersService } from './users.service'
 
 @Controller('users')
@@ -10,6 +11,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly commandBus: CommandBus,
+    private queryBus: QueryBus,
   ) {
   }
 
@@ -41,7 +43,7 @@ export class UsersController {
   async getUser(
     @Param('id') id: number,
   ) {
-    return this.usersService.getUser({ id: +id })
+    return this.queryBus.execute(new GetUserInfoQuery(id));
   }
 
   @Delete('/:id')

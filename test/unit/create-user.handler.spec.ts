@@ -1,15 +1,17 @@
 import { BadRequestException } from '@nestjs/common'
+import { EventBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as uuid from 'uuid'
 import { PrismaService } from '../../src/common/prisma/prisma.service'
 import { CreateUserCommand } from '../../src/modules/users/commands/create-user.command'
-import { CreateUserHandler } from '../../src/modules/users/commands/handler/create-user.handler'
+import { CreateUserHandler } from '../../src/modules/users/handler/create-user.handler'
 
 jest.mock('uuid') // uuid 모듈을 모킹하여 테스트에 고정된 토큰 사용
 
 describe('CreateUserHandler', () => {
   let handler: CreateUserHandler
   let prismaService: PrismaService
+  let eventBus: EventBus
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,11 +31,19 @@ describe('CreateUserHandler', () => {
             })),
           },
         },
+        {
+          provide: EventBus,
+          useValue: {
+            publish: jest.fn(),
+          },
+        },
+
       ],
     }).compile()
 
     handler = module.get<CreateUserHandler>(CreateUserHandler)
     prismaService = module.get<PrismaService>(PrismaService)
+    eventBus = module.get<EventBus>(EventBus)
   })
 
   it('should throw BadRequestException if user already exists', async () => {
@@ -79,5 +89,6 @@ describe('CreateUserHandler', () => {
         name: true,
       },
     })
+    expect(eventBus.publish).toHaveBeenCalledTimes(2)
   })
 })

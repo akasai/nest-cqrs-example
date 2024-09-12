@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { PrismaService } from '../../../../common/prisma/prisma.service'
-import { VerifyEmailCommand } from '../verify-email.command'
+import { PrismaService } from '../../../common/prisma/prisma.service'
+import { VerifyEmailCommand } from '../commands/verify-email.command'
 
 @Injectable()
 @CommandHandler(VerifyEmailCommand)

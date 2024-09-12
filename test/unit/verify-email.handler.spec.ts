@@ -4,7 +4,7 @@ import * as uuid from 'uuid'
 import { PrismaService } from '../../src/common/prisma/prisma.service'
 import { CreateUserCommand } from '../../src/modules/users/commands/create-user.command'
 import { VerifyEmailCommand } from '../../src/modules/users/commands/verify-email.command'
-import { VerifyEmailHandler } from '../../src/modules/users/commands/handler/verify-email.handler'
+import { VerifyEmailHandler } from '../../src/modules/users/handler/verify-email.handler'
 
 jest.mock('uuid') // uuid 모듈을 모킹하여 테스트에 고정된 토큰 사용
 

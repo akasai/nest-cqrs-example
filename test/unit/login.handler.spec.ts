@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { PrismaService } from '../../src/common/prisma/prisma.service'
-import { LoginHandler } from '../../src/modules/users/commands/handler'
+import { LoginHandler } from '../../src/modules/users/handler'
 import { LoginCommand } from '../../src/modules/users/commands/login.command'
 
 describe('LoginHandler', () => {

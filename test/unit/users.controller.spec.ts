@@ -1,9 +1,10 @@
-import { CommandBus } from '@nestjs/cqrs'
+import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as uuid from 'uuid'
 import { CreateUserCommand } from '../../src/modules/users/commands/create-user.command'
 import { LoginCommand } from '../../src/modules/users/commands/login.command'
 import { VerifyEmailCommand } from '../../src/modules/users/commands/verify-email.command'
+import { GetUserInfoQuery } from '../../src/modules/users/queries/get-user-info.query'
 import { UsersController } from '../../src/modules/users/users.controller'
 import { UsersService } from '../../src/modules/users/users.service'
 
@@ -11,6 +12,7 @@ describe('UsersController', () => {
   let controller: UsersController
   let usersService: UsersService
   let commandBus: CommandBus
+  let queryBus: QueryBus
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,12 +32,19 @@ describe('UsersController', () => {
             execute: jest.fn(), // CommandBus의 execute 메서드 모킹
           },
         },
+        {
+          provide: QueryBus,
+          useValue: {
+            execute: jest.fn(), // CommandBus의 execute 메서드 모킹
+          },
+        },
       ],
     }).compile()
 
     controller = module.get<UsersController>(UsersController)
     usersService = module.get<UsersService>(UsersService)
     commandBus = module.get<CommandBus>(CommandBus)
+    queryBus = module.get<QueryBus>(QueryBus)
   })
 
   it('should be defined', () => {
@@ -81,13 +90,15 @@ describe('UsersController', () => {
 
   it('should call usersService.getUser when getUser is called', async () => {
     const data = 1
-    const userData = { id: 1, name: 'Test User', email: 'test@example.com', password: '1224' };
+    const userData = { id: 1, name: 'Test User', email: 'test@example.com' };
 
-    (usersService.getUser as jest.Mock).mockResolvedValue(userData)
+    (queryBus.execute as jest.Mock).mockResolvedValue(userData)
 
     const result = await controller.getUser(data)
 
-    expect(usersService.getUser).toHaveBeenCalledWith({ id: data })
+    expect(queryBus.execute).toHaveBeenCalledWith(
+      new GetUserInfoQuery(data)
+    )
     expect(result).toEqual(userData)
   })
 
